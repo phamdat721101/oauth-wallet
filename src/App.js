@@ -33,12 +33,14 @@ function App() {
 
   // Handle GitHub OAuth success
   const handleGitHubLoginSuccess = (response) => {
+    console.log("Handle success: ", response)
     const identifier = `github_${response.id}`; // Use GitHub ID as the unique identifier
     saveUserIdentifier(identifier);
   };
 
   // Handle GitHub OAuth failure
   const handleGitHubLoginFailure = (error) => {
+    console.log("Handle fail: ", response)
     console.error('GitHub Login Failed:', error);
   };
 
