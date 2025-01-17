@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
-import { GithubLoginButton } from 'react-social-login-buttons';
 import { ethers } from 'ethers'; // Import ethers v6
 
 function App() {
@@ -31,17 +30,13 @@ function App() {
     saveUserIdentifier(identifier);
   };
 
-  // Handle GitHub OAuth success
-  const handleGitHubLoginSuccess = (response) => {
-    console.log("Handle success: ", response)
-    const identifier = `github_${response.id}`; // Use GitHub ID as the unique identifier
-    saveUserIdentifier(identifier);
-  };
-
-  // Handle GitHub OAuth failure
-  const handleGitHubLoginFailure = (error) => {
-    console.log("Handle fail: ", error)
-    console.error('GitHub Login Failed:', error);
+  // Handle GitHub OAuth button click
+  const handleGitHubLoginClick = () => {
+    console.log('GitHub login button clicked'); // Debugging
+    const clientId = process.env.REACT_APP_GITHUB_CLIENT_ID;
+    const redirectUri = encodeURIComponent(process.env.REACT_APP_GITHUB_REDIRECT_URI);
+    const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=user`;
+    window.location.href = githubAuthUrl; // Redirect to GitHub OAuth
   };
 
   // Save user identifier and generate wallet
@@ -91,13 +86,7 @@ function App() {
                 console.error('Google Login Failed');
               }}
             />
-            <GithubLoginButton
-              clientId={process.env.REACT_APP_GITHUB_CLIENT_ID}
-              redirectUri={process.env.REACT_APP_GITHUB_REDIRECT_URI}
-              onSuccess={handleGitHubLoginSuccess}
-              onFailure={handleGitHubLoginFailure}
-              buttonText="Login with GitHub"
-            />
+            <button onClick={handleGitHubLoginClick}>Login with GitHub</button>
           </div>
         ) : (
           <div>
