@@ -3,6 +3,34 @@ import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import GitHubLogin from 'react-github-login';
 import { ethers } from 'ethers'; // Import ethers v6
 
+// Helper function to generate a random string
+const generateRandomString = (length) => {
+  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+  return Array.from({ length }, () => possible[Math.floor(Math.random() * possible.length)]).join('');
+};
+
+// Helper function to base64 URL encode a string
+const base64URLEncode = (str) => {
+  return btoa(String.fromCharCode.apply(null, new Uint8Array(str)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+};
+
+// Helper function to hash a string using SHA-256
+const sha256 = async (plain) => {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(plain);
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  return new Uint8Array(hash);
+};
+
+// Helper function to generate a code challenge
+const generateCodeChallenge = async (codeVerifier) => {
+  const hashed = await sha256(codeVerifier);
+  return base64URLEncode(hashed);
+};
+
 function App() {
   const [wallet, setWallet] = useState(null);
   const [userIdentifier, setUserIdentifier] = useState(null);
