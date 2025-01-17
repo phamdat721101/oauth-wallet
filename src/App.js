@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import GitHubLogin from 'react-github-login';
-import TwitterLogin from 'react-twitter-login';
 import { ethers } from 'ethers'; // Import ethers v6
 
 function App() {
@@ -43,15 +42,12 @@ function App() {
     console.error('GitHub Login Failed:', error);
   };
 
-  // Handle Twitter OAuth success
-  const handleTwitterLoginSuccess = (response) => {
-    const identifier = `twitter_${response.id_str}`; // Use Twitter ID as the unique identifier
-    saveUserIdentifier(identifier);
-  };
-
-  // Handle Twitter OAuth failure
-  const handleTwitterLoginFailure = (error) => {
-    console.error('Twitter Login Failed:', error);
+  // Handle Twitter OAuth button click
+  const handleTwitterLoginClick = () => {
+    const clientId = process.env.REACT_APP_TWITTER_CLIENT_ID;
+    const redirectUri = encodeURIComponent(process.env.REACT_APP_TWITTER_REDIRECT_URI);
+    const twitterAuthUrl = `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=tweet.read%20users.read&state=state&code_challenge=challenge&code_challenge_method=plain`;
+    window.location.href = twitterAuthUrl; // Redirect to Twitter OAuth
   };
 
   // Save user identifier and generate wallet
@@ -109,17 +105,21 @@ function App() {
               buttonText="Login with GitHub"
               className="github-login-button"
             />
-            <TwitterLogin
-              authCallback={handleTwitterLoginSuccess}
-              onFailure={handleTwitterLoginFailure}
-              consumerKey={process.env.REACT_APP_TWITTER_CLIENT_ID}
-              consumerSecret={process.env.REACT_APP_TWITTER_CLIENT_SECRET}
-              callbackUrl={process.env.REACT_APP_TWITTER_REDIRECT_URI}
-              buttonTheme="light"
-              className="twitter-login-button"
+            <button
+              onClick={handleTwitterLoginClick}
+              style={{
+                backgroundColor: '#1DA1F2',
+                color: 'white',
+                padding: '10px 20px',
+                border: 'none',
+                borderRadius: '5px',
+                cursor: 'pointer',
+                fontSize: '16px',
+                margin: '10px',
+              }}
             >
               Login with Twitter
-            </TwitterLogin>
+            </button>
           </div>
         ) : (
           <div>
