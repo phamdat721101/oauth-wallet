@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import GitHubLogin from 'react-github-login';
+import { TwitterLoginButton } from 'react-twitter-login';
 import { ethers } from 'ethers'; // Import ethers v6
 
 function App() {
@@ -40,6 +41,17 @@ function App() {
   // Handle GitHub OAuth failure
   const handleGitHubLoginFailure = (error) => {
     console.error('GitHub Login Failed:', error);
+  };
+
+  // Handle Twitter OAuth success
+  const handleTwitterLoginSuccess = (response) => {
+    const identifier = `twitter_${response.id_str}`; // Use Twitter ID as the unique identifier
+    saveUserIdentifier(identifier);
+  };
+
+  // Handle Twitter OAuth failure
+  const handleTwitterLoginFailure = (error) => {
+    console.error('Twitter Login Failed:', error);
   };
 
   // Save user identifier and generate wallet
@@ -97,6 +109,17 @@ function App() {
               buttonText="Login with GitHub"
               className="github-login-button"
             />
+            <TwitterLoginButton
+              authCallback={handleTwitterLoginSuccess}
+              onFailure={handleTwitterLoginFailure}
+              consumerKey={process.env.REACT_APP_TWITTER_CLIENT_ID}
+              consumerSecret={process.env.REACT_APP_TWITTER_CLIENT_SECRET}
+              callbackUrl={process.env.REACT_APP_TWITTER_REDIRECT_URI}
+              buttonTheme="light"
+              className="twitter-login-button"
+            >
+              Login with Twitter
+            </TwitterLoginButton>
           </div>
         ) : (
           <div>
