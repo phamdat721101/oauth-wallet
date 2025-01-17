@@ -43,12 +43,67 @@ function App() {
   };
 
   // Handle Twitter OAuth button click
-  const handleTwitterLoginClick = () => {
+  const handleTwitterLoginClick = async () => {
     const clientId = process.env.REACT_APP_TWITTER_CLIENT_ID;
     const redirectUri = encodeURIComponent(process.env.REACT_APP_TWITTER_REDIRECT_URI);
-    const twitterAuthUrl = `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=tweet.read%20users.read&state=state&code_challenge=challenge&code_challenge_method=plain`;
+    const scope = encodeURIComponent('tweet.read users.read');
+    const state = generateRandomString(16); // Optional: Add a state parameter for security
+    const codeVerifier = generateRandomString(64);
+    const codeChallenge = await generateCodeChallenge(codeVerifier);
+
+    // Save the code verifier in localStorage
+    localStorage.setItem('twitter_code_verifier', codeVerifier);
+
+    const twitterAuthUrl = `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
     window.location.href = twitterAuthUrl; // Redirect to Twitter OAuth
   };
+
+  // Handle Twitter OAuth callback
+  useEffect(() => {
+    const queryParams = new URLSearchParams(window.location.search);
+    const code = queryParams.get('code');
+
+    if (code) {
+      const codeVerifier = localStorage.getItem('twitter_code_verifier');
+
+      // Exchange the code for an access token
+      fetch('https://api.twitter.com/2/oauth2/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          code,
+          grant_type: 'authorization_code',
+          client_id: process.env.REACT_APP_TWITTER_CLIENT_ID,
+          redirect_uri: process.env.REACT_APP_TWITTER_REDIRECT_URI,
+          code_verifier: codeVerifier,
+        }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          const accessToken = data.access_token;
+
+          // Fetch the user's Twitter ID using the access token
+          fetch('https://api.twitter.com/2/users/me', {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          })
+            .then((response) => response.json())
+            .then((userData) => {
+              const identifier = `twitter_${userData.data.id}`; // Use Twitter ID as the unique identifier
+              saveUserIdentifier(identifier);
+            })
+            .catch((error) => {
+              console.error('Failed to fetch user data:', error);
+            });
+        })
+        .catch((error) => {
+          console.error('Failed to exchange code for access token:', error);
+        });
+    }
+  }, []);
 
   // Save user identifier and generate wallet
   const saveUserIdentifier = (identifier) => {
