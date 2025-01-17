@@ -15,11 +15,6 @@ Before running the project, ensure you have the following installed:
 
 Clone this repository to your local machine:
 
-```bash
-git clone https://github.com/your-username/evm-wallet-oauth2.git
-cd evm-wallet-oauth2
-```
-
 ### 2. Install Dependencies
 Install the required dependencies using npm:
 ```
