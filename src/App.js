@@ -40,7 +40,7 @@ function App() {
 
   // Handle GitHub OAuth failure
   const handleGitHubLoginFailure = (error) => {
-    console.log("Handle fail: ", response)
+    console.log("Handle fail: ", error)
     console.error('GitHub Login Failed:', error);
   };
 
