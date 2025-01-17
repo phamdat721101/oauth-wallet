@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import GitHubLogin from 'react-github-login';
-import { TwitterLoginButton } from 'react-twitter-login';
+import TwitterLogin from 'react-twitter-login';
 import { ethers } from 'ethers'; // Import ethers v6
 
 function App() {
@@ -109,7 +109,7 @@ function App() {
               buttonText="Login with GitHub"
               className="github-login-button"
             />
-            <TwitterLoginButton
+            <TwitterLogin
               authCallback={handleTwitterLoginSuccess}
               onFailure={handleTwitterLoginFailure}
               consumerKey={process.env.REACT_APP_TWITTER_CLIENT_ID}
@@ -119,7 +119,7 @@ function App() {
               className="twitter-login-button"
             >
               Login with Twitter
-            </TwitterLoginButton>
+            </TwitterLogin>
           </div>
         ) : (
           <div>
