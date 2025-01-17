@@ -37,10 +37,9 @@ function App() {
     saveUserIdentifier(identifier);
   };
 
-  // Handle X (Twitter) OAuth success
-  const handleTwitterLoginSuccess = (response) => {
-    const identifier = `twitter_${response.id_str}`; // Use Twitter ID as the unique identifier
-    saveUserIdentifier(identifier);
+  // Handle GitHub OAuth failure
+  const handleGitHubLoginFailure = (error) => {
+    console.error('GitHub Login Failed:', error);
   };
 
   // Save user identifier and generate wallet
@@ -94,16 +93,9 @@ function App() {
               clientId={process.env.REACT_APP_GITHUB_CLIENT_ID}
               redirectUri={process.env.REACT_APP_GITHUB_REDIRECT_URI}
               onSuccess={handleGitHubLoginSuccess}
-              onFailure={(error) => console.error('GitHub Login Failed:', error)}
+              onFailure={handleGitHubLoginFailure}
+              buttonText="Login with GitHub"
             />
-            <button
-              onClick={() => {
-                // Redirect to Twitter OAuth URL
-                window.location.href = `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=${process.env.REACT_APP_TWITTER_CLIENT_ID}&redirect_uri=${process.env.REACT_APP_TWITTER_REDIRECT_URI}&scope=tweet.read%20users.read`;
-              }}
-            >
-              Login with X (Twitter)
-            </button>
           </div>
         ) : (
           <div>
