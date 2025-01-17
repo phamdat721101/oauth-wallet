@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import { GithubLoginButton } from 'react-social-login-buttons';
 import { ethers } from 'ethers'; // Import ethers v6
 
 function App() {
@@ -23,16 +24,29 @@ function App() {
     setWallet(newWallet);
   };
 
-  const handleLoginSuccess = (credentialResponse) => {
-    // Decode JWT to get user info
+  // Handle Google OAuth success
+  const handleGoogleLoginSuccess = (credentialResponse) => {
     const userInfo = JSON.parse(atob(credentialResponse.credential.split('.')[1]));
-    const identifier = userInfo.sub; // Use `sub` as the unique identifier
+    const identifier = `google_${userInfo.sub}`; // Use `sub` as the unique identifier
+    saveUserIdentifier(identifier);
+  };
 
-    // Save the identifier to localStorage
+  // Handle GitHub OAuth success
+  const handleGitHubLoginSuccess = (response) => {
+    const identifier = `github_${response.id}`; // Use GitHub ID as the unique identifier
+    saveUserIdentifier(identifier);
+  };
+
+  // Handle X (Twitter) OAuth success
+  const handleTwitterLoginSuccess = (response) => {
+    const identifier = `twitter_${response.id_str}`; // Use Twitter ID as the unique identifier
+    saveUserIdentifier(identifier);
+  };
+
+  // Save user identifier and generate wallet
+  const saveUserIdentifier = (identifier) => {
     localStorage.setItem('userIdentifier', identifier);
     setUserIdentifier(identifier);
-
-    // Generate the wallet
     generateWallet(identifier);
   };
 
@@ -67,14 +81,30 @@ function App() {
   return (
     <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
       <div className="App">
-        <h1>EVM Wallet with Google OAuth2</h1>
+        <h1>EVM Wallet with OAuth2</h1>
         {!userIdentifier ? (
-          <GoogleLogin
-            onSuccess={handleLoginSuccess}
-            onError={() => {
-              console.error('Login Failed');
-            }}
-          />
+          <div>
+            <GoogleLogin
+              onSuccess={handleGoogleLoginSuccess}
+              onError={() => {
+                console.error('Google Login Failed');
+              }}
+            />
+            <GithubLoginButton
+              clientId={process.env.REACT_APP_GITHUB_CLIENT_ID}
+              redirectUri={process.env.REACT_APP_GITHUB_REDIRECT_URI}
+              onSuccess={handleGitHubLoginSuccess}
+              onFailure={(error) => console.error('GitHub Login Failed:', error)}
+            />
+            <button
+              onClick={() => {
+                // Redirect to Twitter OAuth URL
+                window.location.href = `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=${process.env.REACT_APP_TWITTER_CLIENT_ID}&redirect_uri=${process.env.REACT_APP_TWITTER_REDIRECT_URI}&scope=tweet.read%20users.read`;
+              }}
+            >
+              Login with X (Twitter)
+            </button>
+          </div>
         ) : (
           <div>
             <p>Wallet Address: {wallet?.address}</p>
