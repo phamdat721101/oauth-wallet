@@ -82,7 +82,7 @@ function App() {
     // Save the code verifier in localStorage
     localStorage.setItem('twitter_code_verifier', codeVerifier);
 
-    const twitterAuthUrl = `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
+    const twitterAuthUrl = `https://x.com/i/oauth2/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
     window.location.href = twitterAuthUrl; // Redirect to Twitter OAuth
   };
 
