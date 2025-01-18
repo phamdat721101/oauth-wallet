@@ -113,7 +113,7 @@ function App() {
           })
             .then((response) => response.json())
             .then((userData) => {
-              const identifier = `twitter_${userData.data.id}`;
+              const identifier = `x_${userData.data.id}`;
               saveUserIdentifier(identifier);
             })
             .catch((error) => {
