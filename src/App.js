@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import GitHubLogin from 'react-github-login';
-import { ethers } from 'ethers'; // Import ethers v6
+import { ethers } from 'ethers';
 
-// Helper function to generate a random string
+// Helper functions
 const generateRandomString = (length) => {
   const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
   return Array.from({ length }, () => possible[Math.floor(Math.random() * possible.length)]).join('');
 };
 
-// Helper function to base64 URL encode a string
 const base64URLEncode = (str) => {
   return btoa(String.fromCharCode.apply(null, new Uint8Array(str)))
     .replace(/\+/g, '-')
@@ -17,7 +16,6 @@ const base64URLEncode = (str) => {
     .replace(/=+$/, '');
 };
 
-// Helper function to hash a string using SHA-256
 const sha256 = async (plain) => {
   const encoder = new TextEncoder();
   const data = encoder.encode(plain);
@@ -25,7 +23,6 @@ const sha256 = async (plain) => {
   return new Uint8Array(hash);
 };
 
-// Helper function to generate a code challenge
 const generateCodeChallenge = async (codeVerifier) => {
   const hashed = await sha256(codeVerifier);
   return base64URLEncode(hashed);
@@ -35,58 +32,51 @@ function App() {
   const [wallet, setWallet] = useState(null);
   const [userIdentifier, setUserIdentifier] = useState(null);
 
-  // Load user identifier from localStorage on component mount
   useEffect(() => {
     const storedIdentifier = localStorage.getItem('userIdentifier');
     if (storedIdentifier) {
       setUserIdentifier(storedIdentifier);
-      generateWallet(storedIdentifier); // Regenerate wallet
+      generateWallet(storedIdentifier);
     }
   }, []);
 
-  // Generate a deterministic wallet from a user identifier
   const generateWallet = (identifier) => {
-    const hash = ethers.sha256(ethers.toUtf8Bytes(identifier)); // Hash the identifier
-    const privateKey = hash; // Use the hash directly (already prefixed with 0x)
-    const newWallet = new ethers.Wallet(privateKey); // Create wallet with the private key
+    const hash = ethers.sha256(ethers.toUtf8Bytes(identifier));
+    const privateKey = hash;
+    const newWallet = new ethers.Wallet(privateKey);
     setWallet(newWallet);
   };
 
-  // Handle Google OAuth success
   const handleGoogleLoginSuccess = (credentialResponse) => {
     const userInfo = JSON.parse(atob(credentialResponse.credential.split('.')[1]));
-    const identifier = `google_${userInfo.sub}`; // Use `sub` as the unique identifier
+    const identifier = `google_${userInfo.sub}`;
     saveUserIdentifier(identifier);
   };
 
-  // Handle GitHub OAuth success
   const handleGitHubLoginSuccess = (response) => {
-    const identifier = `github_${response.id}`; // Use GitHub ID as the unique identifier
+    const identifier = `github_${response.id}`;
     saveUserIdentifier(identifier);
   };
 
-  // Handle GitHub OAuth failure
   const handleGitHubLoginFailure = (error) => {
     console.error('GitHub Login Failed:', error);
   };
 
-  // Handle Twitter OAuth button click
   const handleTwitterLoginClick = async () => {
     const clientId = process.env.REACT_APP_TWITTER_CLIENT_ID;
     const redirectUri = encodeURIComponent(process.env.REACT_APP_TWITTER_REDIRECT_URI);
     const scope = encodeURIComponent('tweet.read users.read');
-    const state = generateRandomString(16); // Optional: Add a state parameter for security
+    const state = generateRandomString(16);
     const codeVerifier = generateRandomString(64);
     const codeChallenge = await generateCodeChallenge(codeVerifier);
 
-    // Save the code verifier in localStorage
     localStorage.setItem('twitter_code_verifier', codeVerifier);
 
-    const twitterAuthUrl = `https://x.com/i/oauth2/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
-    window.location.href = twitterAuthUrl; // Redirect to Twitter OAuth
+    const twitterAuthUrl = `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
+    console.log('Redirecting to Twitter Auth URL:', twitterAuthUrl);
+    window.location.href = twitterAuthUrl;
   };
 
-  // Handle Twitter OAuth callback
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
     const code = queryParams.get('code');
@@ -94,7 +84,6 @@ function App() {
     if (code) {
       const codeVerifier = localStorage.getItem('twitter_code_verifier');
 
-      // Exchange the code for an access token
       fetch('https://api.twitter.com/2/oauth2/token', {
         method: 'POST',
         headers: {
@@ -108,11 +97,15 @@ function App() {
           code_verifier: codeVerifier,
         }),
       })
-        .then((response) => response.json())
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
         .then((data) => {
           const accessToken = data.access_token;
 
-          // Fetch the user's Twitter ID using the access token
           fetch('https://api.twitter.com/2/users/me', {
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -120,7 +113,7 @@ function App() {
           })
             .then((response) => response.json())
             .then((userData) => {
-              const identifier = `twitter_${userData.data.id}`; // Use Twitter ID as the unique identifier
+              const identifier = `twitter_${userData.data.id}`;
               saveUserIdentifier(identifier);
             })
             .catch((error) => {
@@ -133,7 +126,6 @@ function App() {
     }
   }, []);
 
-  // Save user identifier and generate wallet
   const saveUserIdentifier = (identifier) => {
     localStorage.setItem('userIdentifier', identifier);
     setUserIdentifier(identifier);
@@ -141,7 +133,7 @@ function App() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('userIdentifier'); // Clear the identifier
+    localStorage.removeItem('userIdentifier');
     setUserIdentifier(null);
     setWallet(null);
   };
@@ -157,7 +149,7 @@ function App() {
 
     const tx = {
       to: '0xC4F6D37E83C7597AF7aD26aCf8186F46791fCf7B',
-      value: ethers.parseEther('0.01') // Sending 0.01 ETH
+      value: ethers.parseEther('0.01'),
     };
 
     try {
