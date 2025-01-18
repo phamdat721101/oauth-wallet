@@ -84,7 +84,11 @@ function App() {
     if (code) {
       const codeVerifier = localStorage.getItem('twitter_code_verifier');
 
-      fetch('https://api.x.com/2/oauth2/token', {
+      // Use a proxy to bypass CORS restrictions
+      const proxyUrl = 'https://oauth-wallet.vercel.app/';
+      const tokenUrl = `${proxyUrl}https://api.x.com/2/oauth2/token`;
+
+      fetch(tokenUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -94,7 +98,7 @@ function App() {
           grant_type: 'authorization_code',
           client_id: process.env.REACT_APP_TWITTER_CLIENT_ID,
           redirect_uri: process.env.REACT_APP_TWITTER_REDIRECT_URI,
-          code_verifier: codeVerifier,
+          code_verifier,
         }),
       })
         .then((response) => {
@@ -107,7 +111,8 @@ function App() {
           const accessToken = data.access_token;
           console.log('Access Token:', accessToken);
 
-          fetch('https://api.x.com/2/users/me', {
+          // Fetch user data using the access token
+          fetch(`${proxyUrl}https://api.x.com/2/users/me`, {
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },
