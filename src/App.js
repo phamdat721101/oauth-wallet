@@ -105,6 +105,7 @@ function App() {
         })
         .then((data) => {
           const accessToken = data.access_token;
+          console.log('Access Token:', accessToken);
 
           fetch('https://api.x.com/2/users/me', {
             headers: {
@@ -113,7 +114,8 @@ function App() {
           })
             .then((response) => response.json())
             .then((userData) => {
-              const identifier = `x_${userData.data.id}`;
+              console.log('User Data:', userData);
+              const identifier = `twitter_${userData.data.id}`;
               saveUserIdentifier(identifier);
             })
             .catch((error) => {
