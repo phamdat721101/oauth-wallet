@@ -84,7 +84,7 @@ function App() {
     if (code) {
       const codeVerifier = localStorage.getItem('twitter_code_verifier');
 
-      fetch('https://api.twitter.com/2/oauth2/token', {
+      fetch('https://api.x.com/2/oauth2/token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -106,7 +106,7 @@ function App() {
         .then((data) => {
           const accessToken = data.access_token;
 
-          fetch('https://api.twitter.com/2/users/me', {
+          fetch('https://api.x.com/2/users/me', {
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },
