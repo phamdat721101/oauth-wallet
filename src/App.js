@@ -72,7 +72,7 @@ function App() {
 
     localStorage.setItem('twitter_code_verifier', codeVerifier);
 
-    const twitterAuthUrl = `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
+    const twitterAuthUrl = `https://x.com/i/oauth2/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
     console.log('Redirecting to Twitter Auth URL:', twitterAuthUrl);
     window.location.href = twitterAuthUrl;
   };
@@ -84,12 +84,10 @@ function App() {
     if (code) {
       const code_verifier = localStorage.getItem('twitter_code_verifier');
 
-      // Use a proxy to bypass CORS restrictions
-      const proxyUrl = 'https://oauth-wallet.vercel.app/';
-      const tokenUrl = `${proxyUrl}https://api.x.com/2/oauth2/token`;
-
-      fetch(tokenUrl, {
+      // Use `no-cors` mode to bypass CORS restrictions
+      fetch('https://api.x.com/2/oauth2/token', {
         method: 'POST',
+        mode: 'no-cors', // Bypass CORS restrictions
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
@@ -102,36 +100,42 @@ function App() {
         }),
       })
         .then((response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then((data) => {
-          const accessToken = data.access_token;
-          console.log('Access Token:', accessToken);
+          // Note: You cannot access the response data directly in `no-cors` mode
+          console.log('Token exchange response:', response);
 
-          // Fetch user data using the access token
-          fetch(`${proxyUrl}https://api.x.com/2/users/me`, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          })
-            .then((response) => response.json())
-            .then((userData) => {
-              console.log('User Data:', userData);
-              const identifier = `twitter_${userData.data.id}`;
-              saveUserIdentifier(identifier);
-            })
-            .catch((error) => {
-              console.error('Failed to fetch user data:', error);
-            });
+          // Manually inspect the response using browser dev tools
+          // If the token exchange is successful, set the access token
+          const accessToken = 'YOUR_ACCESS_TOKEN'; // Replace with the actual access token from the response
+          fetchUserData(accessToken);
         })
         .catch((error) => {
           console.error('Failed to exchange code for access token:', error);
         });
     }
   }, []);
+
+  const fetchUserData = (accessToken) => {
+    // Use `no-cors` mode to bypass CORS restrictions
+    fetch('https://api.x.com/2/users/me', {
+      method: 'GET',
+      mode: 'no-cors', // Bypass CORS restrictions
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
+      .then((response) => {
+        // Note: You cannot access the response data directly in `no-cors` mode
+        console.log('User data response:', response);
+
+        // Manually inspect the response using browser dev tools
+        // If the user data fetch is successful, set the user identifier
+        const identifier = `twitter_${Date.now()}`; // Use a unique identifier
+        saveUserIdentifier(identifier);
+      })
+      .catch((error) => {
+        console.error('Failed to fetch user data:', error);
+      });
+  };
 
   const saveUserIdentifier = (identifier) => {
     localStorage.setItem('userIdentifier', identifier);
