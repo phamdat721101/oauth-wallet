@@ -82,7 +82,7 @@ function App() {
     const code = queryParams.get('code');
 
     if (code) {
-      const codeVerifier = localStorage.getItem('twitter_code_verifier');
+      const code_verifier = localStorage.getItem('twitter_code_verifier');
 
       // Use a proxy to bypass CORS restrictions
       const proxyUrl = 'https://oauth-wallet.vercel.app/';
