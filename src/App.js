@@ -87,6 +87,7 @@ function App() {
       // Use `no-cors` mode to bypass CORS restrictions
       fetch('https://api.x.com/2/oauth2/token', {
         method: 'POST',
+        mode: 'no-cors',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'Authorization': 'Bearer AAAAAAAAAAAAAAAAAAAAAOsGyQEAAAAA2tLikQCpJonIHaH1oNiCOlvc5bU%3DPYVKj1ys2twt7mPzRgG9PMSU42oqvCexskQQ2teIEafClxqo6J'
