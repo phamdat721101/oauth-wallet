@@ -89,12 +89,11 @@ function App() {
         method: 'POST',
         mode: 'no-cors',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': 'Bearer AAAAAAAAAAAAAAAAAAAAAOsGyQEAAAAA2tLikQCpJonIHaH1oNiCOlvc5bU%3DPYVKj1ys2twt7mPzRgG9PMSU42oqvCexskQQ2teIEafClxqo6J'
+          'Content-Type': 'application/x-www-form-urlencoded'
         },
         body: new URLSearchParams({
           code,
-          grant_type: 'client_credentials',
+          grant_type: 'authorization_code',
           client_id: process.env.REACT_APP_TWITTER_CLIENT_ID,
           redirect_uri: process.env.REACT_APP_TWITTER_REDIRECT_URI,
           code_verifier,
@@ -107,7 +106,7 @@ function App() {
           // Manually inspect the response using browser dev tools
           // If the token exchange is successful, set the access token
           const accessToken = 'YOUR_ACCESS_TOKEN'; // Replace with the actual access token from the response
-          fetchUserData(accessToken);
+          fetchUserData(response.access_token);
         })
         .catch((error) => {
           console.error('Failed to exchange code for access token:', error);
@@ -115,8 +114,7 @@ function App() {
     }
   }, []);
 
-  const fetchUserData = (accessToken) => {
-    accessToken = "AAAAAAAAAAAAAAAAAAAAAOsGyQEAAAAA2tLikQCpJonIHaH1oNiCOlvc5bU%3DPYVKj1ys2twt7mPzRgG9PMSU42oqvCexskQQ2teIEafClxqo6J"
+  const fetchUserData = (accessToken) => {    
     // Use `no-cors` mode to bypass CORS restrictions
     fetch('https://api.x.com/2/users/me', {
       method: 'GET',
