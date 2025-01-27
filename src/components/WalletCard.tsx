@@ -22,9 +22,9 @@ interface WalletCardProps {
 }
 
 const networks = [
-  { id: 'ethereum', name: 'Ethereum', symbol: 'ETH', balance: '0.5' },
-  { id: 'polygon', name: 'Polygon', symbol: 'MATIC', balance: '100' },
-  { id: 'arbitrum', name: 'Arbitrum', symbol: 'ETH', balance: '0.2' },
+  { id: 'Kaia', name: 'Kaia', symbol: 'KAIA', balance: '0.0' },
+  { id: 'Somnia', name: 'Somnia', symbol: 'STT', balance: '0.0' },
+  { id: 'Arbitrum', name: 'Arbitrum', symbol: 'ETH', balance: '0.0' },
 ];
 
 export const WalletCard = ({ address }: WalletCardProps) => {
