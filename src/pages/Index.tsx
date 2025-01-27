@@ -47,9 +47,9 @@ const Index = () => {
   const handleGitHubLoginSuccess = (response: any) => {
     console.log("Github resp: ", response)
     try {
-      if (response && response.id) {
+      if (response && response.code) {
         // GitHub returns a id that should be exchanged for an access token
-        const identifier = `github_${response.id}`;
+        const identifier = `github_${response.code}`;
         saveUserIdentifier(identifier);
         toast.success('GitHub login successful!');
       } else {
