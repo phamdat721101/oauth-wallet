@@ -45,6 +45,7 @@ const Index = () => {
   };
 
   const handleGitHubLoginSuccess = (response: any) => {
+    console.log("Github resp: ", response)
     try {
       if (response && response.id) {
         // GitHub returns a id that should be exchanged for an access token
