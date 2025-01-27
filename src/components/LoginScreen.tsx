@@ -51,13 +51,13 @@ export const LoginScreen = ({
             Login with Twitter
           </button>
           
-          {/* Mock login button for testing */}
+          {/* Mock login button for testing
           <Button 
             onClick={onMockLogin}
             className="w-full bg-green-600 hover:bg-green-700"
           >
             Test Wallet (Mock Login)
-          </Button>
+          </Button> */}
         </div>
       </div>
     </div>
